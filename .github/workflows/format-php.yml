@@ -1,0 +1,25 @@
+name: Code Style
+
+on:
+    pull_request:
+        paths:
+            - '**.php'
+
+jobs:
+    php-cs-fixer:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  ref: ${{ github.head_ref }}
+                  fetch-depth: 0
+
+            - name: Run php-cs-fixer
+              uses: docker://oskarstark/php-cs-fixer-ga
+
+            - uses: stefanzweifel/git-auto-commit-action@v5
+              with:
+                  commit_message: '(auto): apply php-cs-fixer changes'
+                  push_options: '--force'
+              env:
+                  GITHUB_TOKEN: ${{ secrets.YARD_BOT_PAT }}

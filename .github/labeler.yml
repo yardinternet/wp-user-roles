@@ -1,0 +1,32 @@
+# Add 'root' label to any root file changes
+# Quotation marks are required for the leading asterisk
+root:
+  - changed-files:
+    - any-glob-to-any-file: '*'
+
+# Add 'documentation' label to any change to .md files within the entire repository
+documentation:
+  - changed-files:
+    - any-glob-to-any-file: '**/*.md'
+
+# Add 'enhancement' label to any PR where the head branch name starts with `feature` or has a `feature` section in the name
+enhancement:
+  - head-branch: ['^feature', 'feature', '^feat']
+
+# Add 'fix' label to any PR where the head branch name starts with `fix` or has a `fix` section in the name
+bug:
+  - head-branch: ['fix', '^fix']
+
+# Add 'release' label to any PR that is opened against the `main` branch
+release:
+  - base-branch: 'main'
+
+# Add 'dependencies' label to any composer.lock or package-lock.json changes
+dependencies:
+  - changed-files:
+    - any-glob-to-any-file: ['composer.lock', 'package-lock.json']
+
+# Add 'tests' label to any changes to the tests directory
+tests:
+  - changed-files:
+    - any-glob-to-any-file: 'tests/**/*'

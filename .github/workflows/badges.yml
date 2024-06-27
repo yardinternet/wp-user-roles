@@ -1,0 +1,72 @@
+name: Create badges
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  badges:
+    name: Create badges
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@2.9.0
+        with:
+          php-version: '8.1'
+          extensions:  simplexml, dom, xml, xdebug, intl
+          tools: composer:v2
+        env:
+              COMPOSER_TOKEN: ${{ secrets.YARD_BOT_PAT }}
+
+      - name: Get composer cache directory
+        id: composer-cache
+        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install dependencies
+        run: composer install --prefer-dist
+
+      - name: Recreate autoload file
+        run: composer dump-autoload
+
+      - name: Run Unit Tests
+        run: XDEBUG_MODE_COVERAGE=coverage vendor/bin/pest --coverage-clover=clover.xml
+
+      - name: Make lines of code badge
+        uses: DeathSy/GHA-LoC-Badge@1.0.3
+        id: badge
+        with:
+          debug: true
+          directory: ./src
+          patterns: '**/*.php'
+          badge: ./output/lines-of-code.svg
+
+      - name: Make code coverage badge
+        uses: timkrase/phpunit-coverage-badge@v1.2.1
+        with:
+          coverage_badge_path: output/coverage.svg
+          push_badge: false
+
+      - name: Git push to badges branch
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          publish_dir: ./output
+          publish_branch: badges
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          user_name: 'github-actions[bot]'
+          user_email: 'github-actions[bot]@users.noreply.github.com'

@@ -1,0 +1,21 @@
+name: NPM Lockfile Changes
+on:
+  pull_request:
+    paths:
+      - 'package-lock.json'
+
+jobs:
+  lockfile_changes:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Required to make it possible to compare with PR base branch
+      - name: NPM Lockfile Changes
+        uses: codepunkt/npm-lockfile-changes@main
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
