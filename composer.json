@@ -18,7 +18,7 @@
 		"10up/wp_mock": "^0.4.2",
 		"friendsofphp/php-cs-fixer": "^3.58",
 		"larastan/larastan": "^2.0",
-		"orchestra/testbench": "^8.23",
+		"orchestra/testbench": "^9.2",
 		"pestphp/pest": "^2.34",
 		"szepeviktor/phpstan-wordpress": "^1.0"
 	},
