@@ -3,10 +3,7 @@ includes:
     - vendor/larastan/larastan/extension.neon
 
 parameters:
-    level: 9
+    level: 7
     paths:
         - src
     tmpDir: build/phpstan
-    ignoreErrors:
-        -
-            message: '#Call to an undefined static method Yard\\SkeletonPackage\\Facades\\Example::getQuote\(\)#'

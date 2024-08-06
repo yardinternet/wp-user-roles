@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Yard\SkeletonPackage\Tests;
+namespace Yard\UserRoles\Tests;
 
 use Orchestra\Testbench\TestCase as Orchestra;
 
@@ -19,7 +19,7 @@ class TestCase extends Orchestra
     {
         parent::tearDown();
 
-       \WP_Mock::tearDown();
+        \WP_Mock::tearDown();
     }
 
     /**
@@ -32,7 +32,7 @@ class TestCase extends Orchestra
     protected function getPackageProviders($app)
     {
         return [
-            'Yard\SkeletonPackage\SkeletonPackageServiceProvider',
+            'Yard\UserRoles\UserRolesServiceProvider',
         ];
     }
 }

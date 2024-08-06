@@ -1,7 +1,7 @@
 {
-	"name": "yard/skeleton-package",
+	"name": "yard/wp-user-roles",
 	"type": "package",
-	"description": ":package_description",
+	"description": "This is my package wp-user-roles",
   "version": "1.0.0",
 	"license": "MIT",
   "config": {
@@ -24,12 +24,12 @@
 	},
   "autoload": {
 		"psr-4": {
-			"Yard\\SkeletonPackage\\": "src/"
+			"Yard\\UserRoles\\": "src/"
 		}
 	},
   "autoload-dev": {
 		"psr-4": {
-			"Yard\\SkeletonPackage\\Tests\\": "tests/"
+			"Yard\\UserRoles\\Tests\\": "tests/"
 		}
 	},
   "scripts": {
@@ -44,10 +44,10 @@
 	"extra": {
 		"acorn": {
 			"providers": [
-				"Yard\\SkeletonPackage\\SkeletonPackageServiceProvider"
+				"Yard\\UserRoles\\UserRolesServiceProvider"
 			],
 			"aliases": {
-				"Example": "Yard\\SkeletonPackage\\Facades\\Example"
+				"UserRoles": "Yard\\UserRoles\\Facades\\UserRoles"
 			}
 		}
 	}
