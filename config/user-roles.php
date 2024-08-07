@@ -9,14 +9,14 @@ return [
         'superuser' => [
             'display_name' => 'Superuser',
             'caps' => [
-                'read' => true,
-                'edit_dashboard'         => true,
-                'edit_files'             => true,
-                'unfiltered_html'        => true,
-                'upload_files'           => true,
-                'manage_categories'      => true,
-                'edit_theme_options'     => true,
-                'moderate_comments'      => true,
+                'read',
+                'edit_dashboard',
+                'edit_files',
+                'unfiltered_html',
+                'upload_files',
+                'manage_categories',
+                'edit_theme_options',
+                'moderate_comments',
             ],
             'post_type_caps' => [
                 'post',
@@ -25,6 +25,7 @@ return [
             'cap_groups' => [
                 'gravityforms',
                 'wpseo',
+                'users',
             ],
         ],
     ],

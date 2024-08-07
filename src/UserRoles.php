@@ -30,49 +30,59 @@ class UserRoles
 
     private function setRolesForSite(): void
     {
-
-        $roles = config('user-roles.roles');
         $prefix = config('user-roles.prefix');
-
-        Assert::isArray($roles);
         Assert::stringNotEmpty($prefix);
 
+        $this->removeCurrentCustomRoles();
+        $this->addCustomRoles();
+    }
 
-        //Remove current custom roles
-        $current_roles = \wp_roles()->roles;
-        $current_roles = array_filter(
-            array_keys($current_roles),
+    private function removeCurrentCustomRoles(): void {
+        $prefix = config('user-roles.prefix');
+        $currentCustomRoles = \wp_roles()->roles;
+        $currentCustomRoles = array_filter(
+            array_keys($currentCustomRoles),
             fn (string $role): bool => str_starts_with($role, $prefix)
         );
-        foreach($current_roles as $role) {
+        foreach($currentCustomRoles as $role) {
             remove_role($role);
         }
+    }
 
-        // Add custom roles
+    private function addCustomRoles(): void {
+        $prefix = config('user-roles.prefix');
+        $roles = config('user-roles.roles');
+        Assert::isArray($roles);
+
         foreach($roles as $role => $properties) {
             $capabilities = [];
+            if (! empty($properties['cap_groups'])) {
+                $capGroups = config('user-roles.cap_groups');
+                Assert::isArray($capGroups);
+                Assert::isArray($properties['cap_groups']);
+                foreach ($properties['cap_groups'] as $group) {
+                    $groupCaps = $capGroups[$group];
+                    Assert::isArray($groupCaps);
 
-            $capGroups = config('user-roles.cap_groups');
-            Assert::isArray($capGroups);
-            foreach ($properties['cap_groups'] as $group) {
-                $groupCaps = $capGroups[$group];
-                Assert::isArray($groupCaps);
-
-                foreach ($groupCaps as $cap) {
-                    $capabilities[$cap] = true;
+                    foreach ($groupCaps as $cap) {
+                        $capabilities[$cap] = true;
+                    }
                 }
             }
 
-            foreach ($properties['post_type_caps'] as $postType) {
-                $postTypeCaps = get_post_type_object($postType)?->cap;
-                Assert::object($postTypeCaps);
-                foreach(array_values((array)$postTypeCaps) as $cap) {
-                    $capabilities[$cap] = true;
+            if (! empty($properties['post_type_caps'])) {
+                Assert::isArray($properties['post_type_caps']);
+                foreach ($properties['post_type_caps'] as $postType) {
+                    $postTypeCaps = get_post_type_object($postType)?->cap;
+                    Assert::object($postTypeCaps);
+                    foreach(array_values((array)$postTypeCaps) as $cap) {
+                        $capabilities[$cap] = true;
+                    }
                 }
             }
 
-            foreach($properties['caps'] as $cap => $value) {
-                $capabilities[$cap] = $value;
+            foreach($properties['caps'] as $cap) {
+                $capabilities[$cap] = true;
             }
 
             add_role(
