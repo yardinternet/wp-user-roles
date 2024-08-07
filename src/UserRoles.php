@@ -37,7 +37,8 @@ class UserRoles
         $this->addCustomRoles();
     }
 
-    private function removeCurrentCustomRoles(): void {
+    private function removeCurrentCustomRoles(): void
+    {
         $prefix = config('user-roles.prefix');
         $currentCustomRoles = \wp_roles()->roles;
         $currentCustomRoles = array_filter(
@@ -49,7 +50,8 @@ class UserRoles
         }
     }
 
-    private function addCustomRoles(): void {
+    private function addCustomRoles(): void
+    {
         $prefix = config('user-roles.prefix');
         $roles = config('user-roles.roles');
         Assert::isArray($roles);
