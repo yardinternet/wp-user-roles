@@ -11,6 +11,12 @@ updates:
       interval: "weekly"
     reviewers:
       - yardinternet/wordpress-backend
+    groups:
+      actions:
+        patterns:
+          - "*"
+    commit-message:
+      prefix: "(chore)"
 
   # Maintain dependencies for npm
   # - package-ecosystem: "npm"
@@ -19,6 +25,13 @@ updates:
   #     interval: "weekly"
   #   reviewers:
   #     - yardinternet/wordpress-frontend
+  #   groups:
+  #     npm:
+  #       patterns:
+  #         - "*"
+  #   commit-message:
+  #     prefix: "(chore)"
+  #   versioning-strategy: lockfile-only
 
   # Maintain dependencies for Composer
   - package-ecosystem: "composer"
@@ -27,3 +40,10 @@ updates:
       interval: "weekly"
     reviewers:
       - yardinternet/wordpress-backend
+    groups:
+      composer:
+        patterns:
+          - "*"
+    commit-message:
+      prefix: "(chore)"
+    versioning-strategy: lockfile-only
