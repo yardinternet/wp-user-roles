@@ -32,7 +32,7 @@ class UserRoles
 	private function removeCurrentCustomRoles(): void
 	{
 		$prefix = config('user-roles.prefix');
-		$currentCustomRoles = \wp_roles()->roles;
+		$currentCustomRoles = wp_roles()->roles;
 		$currentCustomRoles = array_filter(
 			array_keys($currentCustomRoles),
 			fn (string $role): bool => str_starts_with($role, $prefix)
