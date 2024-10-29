@@ -86,8 +86,10 @@ class UserRoles
 				}
 			}
 
-			foreach ($properties['caps'] as $cap) {
-				$capabilities[$cap] = true;
+			if (! empty($properties['caps'])) {
+				foreach ($properties['caps'] as $cap) {
+					$capabilities[$cap] = true;
+				}
 			}
 
 			add_role(
