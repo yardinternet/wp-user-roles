@@ -4,18 +4,10 @@ declare(strict_types=1);
 
 namespace Yard\UserRoles;
 
-use Illuminate\Contracts\Foundation\Application;
 use Webmozart\Assert\Assert;
 
 class UserRoles
 {
-	/**
-	 * Create a new UserRoles instance.
-	 */
-	public function __construct(protected Application $app)
-	{
-	}
-
 	public function setRoles(): void
 	{
 		if (is_multisite()) {
