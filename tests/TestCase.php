@@ -8,31 +8,31 @@ use Orchestra\Testbench\TestCase as Orchestra;
 
 class TestCase extends Orchestra
 {
-    protected function setUp(): void
-    {
-        parent::setUp();
+	protected function setUp(): void
+	{
+		parent::setUp();
 
-        \WP_Mock::setUp();
-    }
+		\WP_Mock::setUp();
+	}
 
-    protected function tearDown(): void
-    {
-        parent::tearDown();
+	protected function tearDown(): void
+	{
+		parent::tearDown();
 
-        \WP_Mock::tearDown();
-    }
+		\WP_Mock::tearDown();
+	}
 
-    /**
-     * Get package providers.
-     *
-     * @param  \Illuminate\Foundation\Application  $app
-     *
-     * @return array<int, class-string<\Illuminate\Support\ServiceProvider>>
-     */
-    protected function getPackageProviders($app)
-    {
-        return [
-            'Yard\UserRoles\UserRolesServiceProvider',
-        ];
-    }
+	/**
+	 * Get package providers.
+	 *
+	 * @param  \Illuminate\Foundation\Application  $app
+	 *
+	 * @return array<int, class-string<\Illuminate\Support\ServiceProvider>>
+	 */
+	protected function getPackageProviders($app)
+	{
+		return [
+			'Yard\UserRoles\UserRolesServiceProvider',
+		];
+	}
 }
