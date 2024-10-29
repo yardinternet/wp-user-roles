@@ -17,10 +17,14 @@ return [
 				'manage_categories',
 				'edit_theme_options',
 				'moderate_comments',
+				'copy_posts',
 			],
 			'post_type_caps' => [
 				'post',
 				'page',
+				'tribe_events',
+				'tribe_organizer',
+				'tribe_venue',
 			],
 			'cap_groups' => [
 				'gravityforms',
@@ -68,6 +72,16 @@ return [
 			'wpseo_manage_options',
 			'wpseo_bulk_edit',
 			'wpseo_manage_options',
+			// We cannot use post_type_caps because SEOPress registers post types in admin only
+			'edit_redirection',
+			'edit_redirections',
+			'edit_others_redirections',
+			'publish_redirections',
+			'read_redirection',
+			'read_private_redirections',
+			'delete_redirection',
+			'delete_others_redirections',
+			'delete_published_redirections',
 		],
 	],
 
