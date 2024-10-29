@@ -22,9 +22,4 @@ class UserRolesServiceProvider extends PackageServiceProvider
 	{
 		$this->app->singleton('UserRoles', fn () => new UserRoles($this->app));
 	}
-
-	public function packageBooted(): void
-	{
-		$this->app->make('UserRoles');
-	}
 }
