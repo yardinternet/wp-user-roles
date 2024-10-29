@@ -76,6 +76,9 @@ class UserRoles
 				Assert::isArray($properties['post_type_caps']);
 				foreach ($properties['post_type_caps'] as $postType) {
 					$postTypeCaps = get_post_type_object($postType)?->cap;
+					if (null === $postTypeCaps) {
+						continue;
+					}
 					Assert::object($postTypeCaps);
 					foreach (array_values((array)$postTypeCaps) as $cap) {
 						$capabilities[$cap] = true;
