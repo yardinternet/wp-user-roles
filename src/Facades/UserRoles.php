@@ -11,11 +11,11 @@ use Illuminate\Support\Facades\Facade;
  */
 class UserRoles extends Facade
 {
-    /**
-     * Get the registered name of the component.
-     */
-    protected static function getFacadeAccessor(): string
-    {
-        return 'UserRoles';
-    }
+	/**
+	 * Get the registered name of the component.
+	 */
+	protected static function getFacadeAccessor(): string
+	{
+		return 'UserRoles';
+	}
 }
