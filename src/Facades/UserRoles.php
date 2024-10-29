@@ -16,6 +16,6 @@ class UserRoles extends Facade
 	 */
 	protected static function getFacadeAccessor(): string
 	{
-		return 'UserRoles';
+		return \Yard\UserRoles\UserRoles::class;
 	}
 }
