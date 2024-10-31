@@ -17,4 +17,9 @@ class UserRolesServiceProvider extends PackageServiceProvider
 			->hasConfigFile('user-roles')
 			->hasCommand(UserRolesCommand::class);
 	}
+
+	public function packageRegistered()
+	{
+		$this->app->singleton(UserRoles::class, fn () => new UserRoles(new \Role_Command));
+	}
 }
