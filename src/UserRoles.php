@@ -8,6 +8,10 @@ use Webmozart\Assert\Assert;
 
 class UserRoles
 {
+	public function __construct(private \Role_Command $roleCommand)
+	{
+	}
+
 	public function setRoles(): void
 	{
 		if (is_multisite()) {
@@ -31,6 +35,8 @@ class UserRoles
 
 	private function removeCurrentCustomRoles(): void
 	{
+		\WP_CLI::log(\WP_CLI::colorize('%MDelete custom roles:%n'));
+
 		$prefix = config('user-roles.prefix');
 		$currentCustomRoles = wp_roles()->roles;
 		$currentCustomRoles = array_filter(
@@ -38,12 +44,14 @@ class UserRoles
 			fn (string $role): bool => str_starts_with($role, $prefix)
 		);
 		foreach ($currentCustomRoles as $role) {
-			remove_role($role);
+			$this->roleCommand->delete([$role]);
 		}
 	}
 
 	private function addCustomRoles(): void
 	{
+		\WP_CLI::log(\WP_CLI::colorize('%MCreate custom roles:%n'));
+
 		$prefix = config('user-roles.prefix');
 		$roles = config('user-roles.roles');
 		Assert::isArray($roles);
@@ -84,11 +92,21 @@ class UserRoles
 				}
 			}
 
-			add_role(
+			$clone = [];
+			if (! empty($properties['clone']) && is_string($properties['clone'])) {
+				$clone['clone'] = $properties['clone'];
+			}
+
+			$this->roleCommand->create([
 				$prefix . '_' . $role,
 				$properties['display_name'],
-				$capabilities
-			);
+			], $clone);
+
+			$role = get_role($prefix . '_' . $role);
+
+			foreach ($capabilities as $cap => $grant) {
+				$role->add_cap($cap, $grant);
+			}
 		}
 	}
 }
