@@ -83,7 +83,7 @@ class UserRoles
 						continue;
 					}
 					Assert::object($postTypeCaps);
-					foreach (array_values((array)$postTypeCaps) as $cap) {
+					foreach ((array)$postTypeCaps as $cap) {
 						$capabilities[$cap] = true;
 					}
 				}
