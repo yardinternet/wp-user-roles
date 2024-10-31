@@ -32,6 +32,15 @@ return [
 				'users',
 			],
 		],
+		'visitor' => [
+			'display_name' => 'Bezoeker',
+			'clone' => 'subscriber',
+			'caps' => [
+				'yard_hide_admin_bar',
+				'yard_redirect_home_after_login',
+				'yard_prevent_admin_access',
+			],
+		],
 	],
 	'cap_groups' => [
 		'plugins' => [
