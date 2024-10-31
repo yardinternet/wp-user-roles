@@ -25,7 +25,9 @@ class UserRolesCommand extends Command
 	public function handle(): void
 	{
 		$this->info('Updating roles...');
+
 		UserRoles::setRoles();
+
 		$this->info('All done!');
 	}
 }

@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace Yard\UserRoles;
 
+use Role_Command;
 use Webmozart\Assert\Assert;
+use WP_CLI;
 
 class UserRoles
 {
-	public function __construct(private \Role_Command $roleCommand)
+	public function __construct(private Role_Command $roleCommand)
 	{
 	}
 
@@ -30,12 +32,13 @@ class UserRoles
 		Assert::stringNotEmpty($prefix);
 
 		$this->removeCurrentCustomRoles();
+		$this->resetDefaultRoles();
 		$this->addCustomRoles();
 	}
 
 	private function removeCurrentCustomRoles(): void
 	{
-		\WP_CLI::log(\WP_CLI::colorize('%MDelete custom roles:%n'));
+		WP_CLI::log(WP_CLI::colorize('%MDelete custom roles:%n'));
 
 		$prefix = config('user-roles.prefix');
 		$currentCustomRoles = wp_roles()->roles;
@@ -50,7 +53,7 @@ class UserRoles
 
 	private function addCustomRoles(): void
 	{
-		\WP_CLI::log(\WP_CLI::colorize('%MCreate custom roles:%n'));
+		WP_CLI::log(WP_CLI::colorize('%MCreate custom roles:%n'));
 
 		$prefix = config('user-roles.prefix');
 		$roles = config('user-roles.roles');
@@ -105,8 +108,15 @@ class UserRoles
 			$role = get_role($prefix . '_' . $role);
 
 			foreach ($capabilities as $cap => $grant) {
-				$role->add_cap($cap, $grant);
+				$role->add_cap((string)$cap, $grant);
 			}
 		}
+	}
+
+	private function resetDefaultRoles(): void
+	{
+		WP_CLI::log(WP_CLI::colorize('%MReset default roles:%n'));
+
+		$this->roleCommand->reset([], ['all' => true]);
 	}
 }
