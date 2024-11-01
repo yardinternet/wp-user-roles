@@ -31,12 +31,13 @@ class UserRoles
 		$prefix = config('user-roles.prefix');
 		Assert::stringNotEmpty($prefix);
 
-		$this->removeCurrentCustomRoles();
-		$this->resetDefaultRoles();
+		$this->removeCustomRoles();
+		$this->resetCoreRoles();
 		$this->addCustomRoles();
+		$this->removeCoreRoles();
 	}
 
-	private function removeCurrentCustomRoles(): void
+	private function removeCustomRoles(): void
 	{
 		WP_CLI::log(WP_CLI::colorize('%MDelete custom roles:%n'));
 
@@ -115,10 +116,23 @@ class UserRoles
 		}
 	}
 
-	private function resetDefaultRoles(): void
+	private function resetCoreRoles(): void
 	{
-		WP_CLI::log(WP_CLI::colorize('%MReset default roles:%n'));
+		WP_CLI::log(WP_CLI::colorize('%MReset core roles:%n'));
 
 		$this->roleCommand->reset([], ['all' => true]);
+	}
+
+	private function removeCoreRoles(): void
+	{
+		WP_CLI::log(WP_CLI::colorize('%MDelete core roles:%n'));
+		
+		$coreRoles = config('user-roles.core_roles');
+
+		foreach ($coreRoles as $role => $shouldStay) {
+			if (false === $shouldStay) {
+				$this->roleCommand->delete([$role]);
+			}
+		}
 	}
 }
