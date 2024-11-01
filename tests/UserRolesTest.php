@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 use Yard\UserRoles\UserRoles;
 
-it('expects all core roles to be marked for removal in config', function () {
+it('expects to find all core roles in config', function () {
 	$coreRoles = [
-		'administrator' => false,
+		'administrator' => true,
 		'editor' => false,
 		'author' => false,
 		'contributor' => false,
@@ -17,9 +17,9 @@ it('expects all core roles to be marked for removal in config', function () {
 		->and(config('user-roles.core_roles'))->toBe($coreRoles);
 });
 
-it('removes all core roles', function () {
+it('removes core roles marked for deletion', function () {
 	$roleCommand = Mockery::mock(Role_Command::class);
-	$roleCommand->shouldReceive('delete')->times(5);
+	$roleCommand->shouldReceive('delete')->times(4);
 
 	$userRoles = new UserRoles($roleCommand);
 
