@@ -15,7 +15,7 @@ return [
 	*/
 
 	'core_roles' => [
-		'administrator' => false,
+		'administrator' => true,
 		'editor' => false,
 		'author' => false,
 		'contributor' => false,
