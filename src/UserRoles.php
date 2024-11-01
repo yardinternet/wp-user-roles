@@ -110,6 +110,8 @@ class UserRoles
 
 			$role = get_role($prefix . '_' . $role);
 
+			Assert::notNull($role);
+
 			foreach ($capabilities as $cap => $grant) {
 				$role->add_cap((string)$cap, $grant);
 			}
