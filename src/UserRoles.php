@@ -80,6 +80,8 @@ class UserRoles
 				foreach ($properties['post_type_caps'] as $postType) {
 					$postTypeCaps = get_post_type_object($postType)?->cap;
 					if (null === $postTypeCaps) {
+						WP_CLI::warning("Post type $postType does not exist. Skipping post type caps.");
+
 						continue;
 					}
 					Assert::object($postTypeCaps);
