@@ -12,12 +12,12 @@ class UserRolesCommand extends Command
 	/**
 	 * The name and signature of the console command.
 	 */
-	protected $signature = 'user-roles';
+	protected $signature = 'roles:create';
 
 	/**
 	 * The console command description.
 	 */
-	protected $description = 'Create, Update and Delete user roles';
+	protected $description = '(Re-)Create, Update and Delete user roles';
 
 	/**
 	 * Execute the console command.
