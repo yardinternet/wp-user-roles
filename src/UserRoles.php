@@ -98,51 +98,17 @@ class UserRoles
 			}
 
 			$capabilities = [];
-			if (! empty($properties['cap_groups'])) {
-				$capGroups = $this->config['cap_groups'];
-				Assert::isArray($capGroups);
-				Assert::isArray($properties['cap_groups']);
-				foreach ($properties['cap_groups'] as $group) {
-					$groupCaps = $capGroups[$group];
-					Assert::isArray($groupCaps);
 
-					foreach ($groupCaps as $cap) {
-						$capabilities[$cap] = true;
-					}
+			if ($this->cloneValid($properties)) {
+				$this->createRole($role, $properties, ['clone' => $properties['clone']['from']]);
+
+				if (isset($properties['clone']['add']) && is_array($properties['clone']['add'])) {
+					$capabilities = $this->capabilitiesFromRoleProperties($properties['clone']['add']);
 				}
+			} else {
+				$this->createRole($role, $properties);
+				$capabilities = $this->capabilitiesFromRoleProperties($properties);
 			}
-
-			if (! empty($properties['post_type_caps'])) {
-				Assert::isArray($properties['post_type_caps']);
-				foreach ($properties['post_type_caps'] as $postType) {
-					$postTypeCaps = get_post_type_object($postType)?->cap;
-					if (null === $postTypeCaps) {
-						$this->wpCli::warning("Post type '$postType' does not exist. Skipping post type caps.");
-
-						continue;
-					}
-					Assert::object($postTypeCaps);
-					foreach ((array)$postTypeCaps as $cap) {
-						$capabilities[$cap] = true;
-					}
-				}
-			}
-
-			if (! empty($properties['caps'])) {
-				foreach ($properties['caps'] as $cap) {
-					$capabilities[$cap] = true;
-				}
-			}
-
-			$clone = [];
-			if (! empty($properties['clone']) && is_string($properties['clone'])) {
-				$clone['clone'] = $properties['clone'];
-			}
-
-			$this->roleCommand->create([
-				$this->prefix . $role,
-				$properties['display_name'],
-			], $clone);
 
 			$role = get_role($this->prefix . $role);
 
@@ -152,6 +118,27 @@ class UserRoles
 				$role->add_cap((string)$cap, $grant);
 			}
 		}
+	}
+
+	/**
+	 * @param array<mixed> $properties
+	 */
+	private function cloneValid(array $properties): bool
+	{
+		return isset($properties['clone']['from'])
+			&& is_string($properties['clone']['from']);
+	}
+
+	/**
+	 * @param array<mixed> $properties
+	 * @param array<mixed> $assocArgs
+	 */
+	private function createRole(string $role, array $properties, array $assocArgs = []): void
+	{
+		$this->roleCommand->create([
+			$this->prefix . $role,
+			$properties['display_name'],
+		], $assocArgs);
 	}
 
 	private function rolesValid(): bool
@@ -192,5 +179,52 @@ class UserRoles
 		return isset($this->config['core_roles'])
 			&& is_array($this->config['core_roles'])
 			&& 0 !== count($this->config['core_roles']);
+	}
+
+	/**
+	 * @param array<mixed> $properties
+	 *
+	 * @return array<mixed>
+	 */
+	public function capabilitiesFromRoleProperties(array $properties): array
+	{
+		$capabilities = [];
+		if (! empty($properties['cap_groups'])) {
+			$capGroups = $this->config['cap_groups'];
+			Assert::isArray($capGroups);
+			Assert::isArray($properties['cap_groups']);
+			foreach ($properties['cap_groups'] as $group) {
+				$groupCaps = $capGroups[$group];
+				Assert::isArray($groupCaps);
+
+				foreach ($groupCaps as $cap) {
+					$capabilities[$cap] = true;
+				}
+			}
+		}
+
+		if (! empty($properties['post_type_caps'])) {
+			Assert::isArray($properties['post_type_caps']);
+			foreach ($properties['post_type_caps'] as $postType) {
+				$postTypeCaps = get_post_type_object($postType)?->cap;
+				if (null === $postTypeCaps) {
+					$this->wpCli::warning("Post type '$postType' does not exist. Skipping post type caps.");
+
+					continue;
+				}
+				Assert::object($postTypeCaps);
+				foreach ((array)$postTypeCaps as $cap) {
+					$capabilities[$cap] = true;
+				}
+			}
+		}
+
+		if (! empty($properties['caps'])) {
+			foreach ($properties['caps'] as $cap) {
+				$capabilities[$cap] = true;
+			}
+		}
+
+		return $capabilities;
 	}
 }
