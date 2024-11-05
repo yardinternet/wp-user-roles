@@ -7,63 +7,99 @@ namespace Yard\UserRoles;
 use Role_Command;
 use Webmozart\Assert\Assert;
 use WP_CLI;
+use WP_CLI\ExitException;
 
 class UserRoles
 {
-	public function __construct(private Role_Command $roleCommand)
+	private string $prefix;
+
+	/**
+	 * @param array<mixed> $config
+	 *
+	 * @throws ExitException
+	 */
+	public function __construct(private array $config, private Role_Command $roleCommand, private WP_CLI $wpCli)
 	{
+		$this->prefix = $this->prefixValidate($config);
 	}
 
-	public function setRoles(): void
+	/**
+	 * (Re)creates roles based on the provided configuration.
+	 */
+	public function createRoles(): void
 	{
-		if (is_multisite()) {
-			foreach (get_sites(['fields' => 'ids']) as $siteId) {
-				switch_to_blog($siteId);
-				$this->setRolesForSite();
-			}
-		} else {
-			$this->setRolesForSite();
-		}
-	}
-
-	private function setRolesForSite(): void
-	{
-		$prefix = config('user-roles.prefix');
-		Assert::stringNotEmpty($prefix);
-
-		$this->removeCustomRoles();
+		$this->deleteCustomRoles();
 		$this->resetCoreRoles();
 		$this->addCustomRoles();
-		$this->removeCoreRoles();
+		$this->deleteCoreRoles();
 	}
 
-	private function removeCustomRoles(): void
+	/**
+	 * @param array<mixed> $config
+	 *
+	 * @throws ExitException
+	 */
+	private function prefixValidate(array $config): string
 	{
-		WP_CLI::log(WP_CLI::colorize('%MDelete custom roles:%n'));
+		$prefix = $config['prefix'] ?? '';
 
-		$prefix = config('user-roles.prefix');
-		$currentCustomRoles = wp_roles()->roles;
-		$currentCustomRoles = array_filter(
-			array_keys($currentCustomRoles),
-			fn (string $role): bool => str_starts_with($role, $prefix)
-		);
-		foreach ($currentCustomRoles as $role) {
+		if (! is_string($prefix) || '' === $prefix) {
+			$this->wpCli::error('No prefix found in configuration file. Aborting role creation.');
+		}
+
+		return $prefix . '_';
+	}
+
+	private function deleteCustomRoles(): void
+	{
+		$this->wpCli::log($this->wpCli::colorize('%MDelete custom roles:%n'));
+
+		$customRoles = $this->getCurrentCustomRoles();
+
+		if (0 === count($customRoles)) {
+			$this->wpCli::warning("No custom roles with prefix '" . $this->prefix . "' found in database. Skipping custom role deletion.");
+
+			return;
+		}
+
+		foreach ($customRoles as $role) {
 			$this->roleCommand->delete([$role]);
 		}
 	}
 
+	/**
+	 * @return array<int, string>
+	 */
+	private function getCurrentCustomRoles(): array
+	{
+		return array_filter(
+			array_keys(wp_roles()->roles),
+			fn (string $role): bool => str_starts_with($role, $this->prefix)
+		);
+	}
+
 	private function addCustomRoles(): void
 	{
-		WP_CLI::log(WP_CLI::colorize('%MCreate custom roles:%n'));
+		$this->wpCli::log($this->wpCli::colorize('%MCreate custom roles:%n'));
 
-		$prefix = config('user-roles.prefix');
-		$roles = config('user-roles.roles');
-		Assert::isArray($roles);
+		if (false === $this->rolesValid()) {
+			$this->wpCli::warning('No roles found in config. Skipping custom role creation.');
+
+			return;
+		}
+
+		$roles = $this->config['roles'];
 
 		foreach ($roles as $role => $properties) {
+			if (! isset($properties['display_name']) || ! is_string($properties['display_name'])) {
+				$this->wpCli::warning("No display name configured for role $role. Skipping role creation.");
+
+				continue;
+			}
+
 			$capabilities = [];
 			if (! empty($properties['cap_groups'])) {
-				$capGroups = config('user-roles.cap_groups');
+				$capGroups = $this->config['cap_groups'];
 				Assert::isArray($capGroups);
 				Assert::isArray($properties['cap_groups']);
 				foreach ($properties['cap_groups'] as $group) {
@@ -81,7 +117,7 @@ class UserRoles
 				foreach ($properties['post_type_caps'] as $postType) {
 					$postTypeCaps = get_post_type_object($postType)?->cap;
 					if (null === $postTypeCaps) {
-						WP_CLI::warning("Post type $postType does not exist. Skipping post type caps.");
+						$this->wpCli::warning("Post type '$postType' does not exist. Skipping post type caps.");
 
 						continue;
 					}
@@ -104,11 +140,11 @@ class UserRoles
 			}
 
 			$this->roleCommand->create([
-				$prefix . '_' . $role,
+				$this->prefix . $role,
 				$properties['display_name'],
 			], $clone);
 
-			$role = get_role($prefix . '_' . $role);
+			$role = get_role($this->prefix . $role);
 
 			Assert::notNull($role);
 
@@ -118,23 +154,43 @@ class UserRoles
 		}
 	}
 
+	private function rolesValid(): bool
+	{
+		return isset($this->config['roles'])
+			&& is_array($this->config['roles'])
+			&& 0 !== count($this->config['roles']);
+	}
+
 	private function resetCoreRoles(): void
 	{
-		WP_CLI::log(WP_CLI::colorize('%MReset core roles:%n'));
+		$this->wpCli::log($this->wpCli::colorize('%MReset core roles:%n'));
 
 		$this->roleCommand->reset([], ['all' => true]);
 	}
 
-	private function removeCoreRoles(): void
+	private function deleteCoreRoles(): void
 	{
-		WP_CLI::log(WP_CLI::colorize('%MDelete core roles:%n'));
+		$this->wpCli::log($this->wpCli::colorize('%MDelete core roles:%n'));
 		
-		$coreRoles = config('user-roles.core_roles');
+		if (! $this->coreRolesValid()) {
+			$this->wpCli::warning('No core roles found in config. Skipping core role deletion.');
+
+			return;
+		}
+
+		$coreRoles = $this->config['core_roles'];
 
 		foreach ($coreRoles as $role => $shouldStay) {
 			if (false === $shouldStay) {
 				$this->roleCommand->delete([$role]);
 			}
 		}
+	}
+
+	private function coreRolesValid(): bool
+	{
+		return isset($this->config['core_roles'])
+			&& is_array($this->config['core_roles'])
+			&& 0 !== count($this->config['core_roles']);
 	}
 }
