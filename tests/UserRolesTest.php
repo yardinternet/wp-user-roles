@@ -249,4 +249,85 @@ describe('create roles', function () {
 		(new UserRoles($config, $this->roleCommand, new WP_CLI))
 			->createRoles();
 	});
+
+	it('can add cap groups to a custom role', function () {
+		// ARRANGE //
+		$config = [
+			'prefix' => 'yard',
+			'roles' => [
+				'visitor' => [
+					'display_name' => 'Bezoeker',
+					'cap_groups' => [
+						'plugins',
+					],
+				],
+			],
+			'cap_groups' => [
+				'plugins' => [
+					'activate_plugins',
+					'delete_plugins',
+				],
+			],
+		];
+
+		// EXPECT //
+		$this->roleCommand->shouldReceive('create')
+			->once()
+			->with(['yard_visitor', 'Bezoeker'], []);
+
+		$this->wpRole->shouldReceive('add_cap')
+			->once()
+			->with('activate_plugins', true);
+
+		$this->wpRole->shouldReceive('add_cap')
+			->once()
+			->with('delete_plugins', true);
+
+		// ACT //
+		(new UserRoles($config, $this->roleCommand, new WP_CLI))
+			->createRoles();
+	});
+
+	it('can add cap groups to a custom cloned role', function () {
+		// ARRANGE //
+		$config = [
+			'prefix' => 'yard',
+			'roles' => [
+				'visitor' => [
+					'display_name' => 'Bezoeker',
+					'clone' => [
+						'from' => 'subscriber',
+						'add' => [
+							'cap_groups' => [
+								'plugins',
+							],
+						],
+					],
+				],
+			],
+			'cap_groups' => [
+				'plugins' => [
+					'activate_plugins',
+					'delete_plugins',
+				],
+			],
+		];
+
+		// EXPECT //
+		$this->roleCommand->shouldReceive('create')
+			->once()
+			->with(['yard_visitor', 'Bezoeker'], ['clone' => 'subscriber']);
+
+		$this->wpRole->shouldReceive('add_cap')
+			->once()
+			->with('activate_plugins', true);
+
+		$this->wpRole->shouldReceive('add_cap')
+			->once()
+			->with('delete_plugins', true);
+
+		// ACT //
+		(new UserRoles($config, $this->roleCommand, new WP_CLI))
+			->createRoles();
+	});
 });
