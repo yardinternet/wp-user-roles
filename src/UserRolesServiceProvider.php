@@ -20,6 +20,10 @@ class UserRolesServiceProvider extends PackageServiceProvider
 
 	public function packageRegistered(): void
 	{
-		$this->app->singleton(UserRoles::class, fn () => new UserRoles(new \Role_Command));
+		$this->app->bind(UserRoles::class, fn () => new UserRoles(
+			config('user-roles'),
+			new \Role_Command(),
+			new \WP_CLI()
+		));
 	}
 }

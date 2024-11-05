@@ -7,7 +7,7 @@ namespace Yard\UserRoles\Facades;
 use Illuminate\Support\Facades\Facade;
 
 /**
- * @method static void setRoles()
+ * @method static void createRoles()
  */
 class UserRoles extends Facade
 {

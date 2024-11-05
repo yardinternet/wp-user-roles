@@ -26,8 +26,20 @@ class UserRolesCommand extends Command
 	{
 		$this->info('Updating roles...');
 
-		UserRoles::setRoles();
+		$this->createRolesForSites();
 
 		$this->info('All done!');
+	}
+
+	private function createRolesForSites(): void
+	{
+		if (true === is_multisite()) {
+			foreach (get_sites(['fields' => 'ids']) as $siteId) {
+				switch_to_blog($siteId);
+				UserRoles::createRoles();
+			}
+		} else {
+			UserRoles::createRoles();
+		}
 	}
 }
