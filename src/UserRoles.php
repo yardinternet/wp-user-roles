@@ -8,6 +8,7 @@ use Role_Command;
 use Webmozart\Assert\Assert;
 use WP_CLI;
 use WP_CLI\ExitException;
+use WP_Role;
 
 class UserRoles
 {
@@ -54,7 +55,7 @@ class UserRoles
 	{
 		$this->wpCli::log($this->wpCli::colorize('%MDelete custom roles:%n'));
 
-		$customRoles = $this->getCurrentCustomRoles();
+		$customRoles = $this->currentCustomRoles();
 
 		if (0 === count($customRoles)) {
 			$this->wpCli::warning("No custom roles with prefix '" . $this->prefix . "' found in database. Skipping custom role deletion.");
@@ -70,7 +71,7 @@ class UserRoles
 	/**
 	 * @return array<int, string>
 	 */
-	private function getCurrentCustomRoles(): array
+	private function currentCustomRoles(): array
 	{
 		return array_filter(
 			array_keys(wp_roles()->roles),
@@ -90,64 +91,95 @@ class UserRoles
 
 		$roles = $this->config['roles'];
 
-		foreach ($roles as $role => $properties) {
-			if (! isset($properties['display_name']) || ! is_string($properties['display_name'])) {
+		foreach ($roles as $role => $props) {
+			if (! isset($props['display_name']) || ! is_string($props['display_name'])) {
 				$this->wpCli::warning("No display name configured for role $role. Skipping role creation.");
 
 				continue;
 			}
 
-			$capabilities = [];
-			$removeCapabilities = [];
-
-			if ($this->cloneValid($properties)) {
-				$this->createRole($role, $properties, ['clone' => $properties['clone']['from']]);
-
-				if (isset($properties['clone']['add']) && is_array($properties['clone']['add'])) {
-					$capabilities = $this->capabilitiesFromRoleProperties($properties['clone']['add']);
-				}
-
-				if (isset($properties['clone']['remove']) && is_array($properties['clone']['remove'])) {
-					$removeCapabilities = $this->capabilitiesFromRoleProperties($properties['clone']['remove']);
-				}
+			if ($this->cloneValid($props)) {
+				$this->addClone($role, $props);
 			} else {
-				$this->createRole($role, $properties);
-				$capabilities = $this->capabilitiesFromRoleProperties($properties);
-			}
-
-			$role = get_role($this->prefix . $role);
-
-			Assert::notNull($role);
-
-			foreach ($capabilities as $cap => $grant) {
-				$role->add_cap((string)$cap, $grant);
-			}
-
-			foreach ($removeCapabilities as $cap => $grant) {
-				$role->remove_cap((string)$cap);
+				$this->addRole($role, $props);
 			}
 		}
 	}
 
 	/**
-	 * @param array<mixed> $properties
+	 * @param array<mixed> $props
 	 */
-	private function cloneValid(array $properties): bool
+	private function addRole(string $role, array $props): void
 	{
-		return isset($properties['clone']['from'])
-			&& is_string($properties['clone']['from']);
+		$role = $this->createRole($role, $props);
+		$capabilities = $this->capsFromRoleProps($props);
+
+		$this->addCaps($role, $capabilities);
 	}
 
 	/**
-	 * @param array<mixed> $properties
+	 * @param array<mixed> $props
+	 */
+	private function addClone(string $role, array $props): void
+	{
+		$role = $this->createRole($role, $props, ['clone' => $props['clone']['from']]);
+
+		if (isset($props['clone']['add']) && is_array($props['clone']['add'])) {
+			$caps = $this->capsFromRoleProps($props['clone']['add']);
+			$this->addCaps($role, $caps);
+		}
+
+		if (isset($props['clone']['remove']) && is_array($props['clone']['remove'])) {
+			$removeCaps = $this->capsFromRoleProps($props['clone']['remove']);
+			$this->removeCaps($role, $removeCaps);
+		}
+	}
+
+	/**
+	 * @param array<mixed> $caps
+	 */
+	private function addCaps(WP_Role $role, array $caps): void
+	{
+		foreach ($caps as $cap => $grant) {
+			$role->add_cap((string)$cap, $grant);
+		}
+	}
+
+	/**
+	 * @param array<mixed> $caps
+	 */
+	private function removeCaps(WP_Role $role, array $caps): void
+	{
+		foreach ($caps as $cap => $grant) {
+			$role->remove_cap((string)$cap);
+		}
+	}
+
+	/**
+	 * @param array<mixed> $props
+	 */
+	private function cloneValid(array $props): bool
+	{
+		return isset($props['clone']['from'])
+			&& is_string($props['clone']['from']);
+	}
+
+	/**
+	 * @param array<mixed> $props
 	 * @param array<mixed> $assocArgs
 	 */
-	private function createRole(string $role, array $properties, array $assocArgs = []): void
+	private function createRole(string $role, array $props, array $assocArgs = []): WP_Role
 	{
 		$this->roleCommand->create([
 			$this->prefix . $role,
-			$properties['display_name'],
+			$props['display_name'],
 		], $assocArgs);
+
+		$wpRole = get_role($this->prefix . $role);
+
+		Assert::notNull($wpRole);
+
+		return $wpRole;
 	}
 
 	private function rolesValid(): bool
@@ -191,18 +223,18 @@ class UserRoles
 	}
 
 	/**
-	 * @param array<mixed> $properties
+	 * @param array<mixed> $props
 	 *
 	 * @return array<mixed>
 	 */
-	public function capabilitiesFromRoleProperties(array $properties): array
+	public function capsFromRoleProps(array $props): array
 	{
 		$capabilities = [];
-		if (! empty($properties['cap_groups'])) {
+		if (! empty($props['cap_groups'])) {
 			$capGroups = $this->config['cap_groups'];
 			Assert::isArray($capGroups);
-			Assert::isArray($properties['cap_groups']);
-			foreach ($properties['cap_groups'] as $group) {
+			Assert::isArray($props['cap_groups']);
+			foreach ($props['cap_groups'] as $group) {
 				$groupCaps = $capGroups[$group];
 				Assert::isArray($groupCaps);
 
@@ -212,9 +244,9 @@ class UserRoles
 			}
 		}
 
-		if (! empty($properties['post_type_caps'])) {
-			Assert::isArray($properties['post_type_caps']);
-			foreach ($properties['post_type_caps'] as $postType) {
+		if (! empty($props['post_type_caps'])) {
+			Assert::isArray($props['post_type_caps']);
+			foreach ($props['post_type_caps'] as $postType) {
 				$postTypeCaps = get_post_type_object($postType)?->cap;
 				if (null === $postTypeCaps) {
 					$this->wpCli::warning("Post type '$postType' does not exist. Skipping post type caps.");
@@ -228,8 +260,8 @@ class UserRoles
 			}
 		}
 
-		if (! empty($properties['caps'])) {
-			foreach ($properties['caps'] as $cap) {
+		if (! empty($props['caps'])) {
+			foreach ($props['caps'] as $cap) {
 				$capabilities[$cap] = true;
 			}
 		}
