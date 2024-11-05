@@ -102,64 +102,151 @@ it('removes core roles marked for deletion', function () {
 	$userRoles->createRoles();
 });
 
-it('creates custom role from config', function () {
-	mockEmptyCurrentRoles();
+describe('create roles', function () {
+	beforeEach(function () {
+		// mock WP_CLI
+		$this->wpCli = Mockery::mock(WP_CLI::class)->shouldIgnoreMissing();
+		
+		// delete custom roles
+		mockEmptyCurrentRoles();
 
-	$roleCommand = Mockery::mock(Role_Command::class)->shouldIgnoreMissing();
+		// reset core roles
+		$roleCommand = Mockery::mock(Role_Command::class);
+		$roleCommand->shouldReceive('reset')
+			->once()
+			->with([], ['all' => true]);
+		$this->roleCommand = $roleCommand;
 
-	$roleCommand->shouldReceive('create')
-		->once()
-		->with(['yard_superuser', 'Superuser'], []);
+		// get created role
+		$this->wpRole = Mockery::mock(WP_Role::class);
+		WP_Mock::userFunction('get_role', [
+			'return' => $this->wpRole,
+		]);
+	});
 
-	$config = [
-		'prefix' => 'yard',
-		'roles' => [
-			'superuser' => [
-				'display_name' => 'Superuser',
-				'caps' => [
-					'my_custom_cap',
+	it('skips creating roles without display name', function () {
+		// ARRANGE //
+		$config = [
+			'prefix' => 'yard',
+			'roles' => [
+				'superuser' => [],
+			],
+		];
+
+		// EXPECT //
+		$this->roleCommand->shouldNotReceive('create');
+		$this->wpCli->shouldReceive('warning')
+			->once()
+			->with('No display name configured for role superuser. Skipping role creation.');
+
+		// ACT //
+		(new UserRoles($config, $this->roleCommand, $this->wpCli))
+			->createRoles();
+	});
+
+	it('can create a custom role from config', function () {
+		// ARRANGE //
+		$config = [
+			'prefix' => 'yard',
+			'roles' => [
+				'superuser' => [
+					'display_name' => 'Superuser',
 				],
 			],
-		],
-	];
+		];
 
-	$userRoles = new UserRoles($config, $roleCommand, new WP_CLI);
+		// EXPECT //
+		$this->roleCommand->shouldReceive('create')
+			->once()
+			->with(['yard_superuser', 'Superuser'], []);
 
-	$wpRole = Mockery::mock(WP_Role::class);
+		// ACT //
+		(new UserRoles($config, $this->roleCommand, new WP_CLI))
+			->createRoles();
+	});
 
-	$wpRole->shouldReceive('add_cap')
-		->once()
-		->with('my_custom_cap', true);
+	it('can add capabilities to custom role', function () {
+		// ARRANGE //
+		$config = [
+			'prefix' => 'yard',
+			'roles' => [
+				'superuser' => [
+					'display_name' => 'Superuser',
+					'caps' => [
+						'my_custom_cap',
+					],
+				],
+			],
+		];
 
-	WP_Mock::userFunction('get_role', [
-		'times' => 1,
-		'return' => $wpRole,
-	]);
+		// EXPECT //
+		$this->roleCommand->shouldReceive('create')
+			->once()
+			->with(['yard_superuser', 'Superuser'], []);
 
-	$userRoles->createRoles();
-});
+		$this->wpRole->shouldReceive('add_cap')
+			->once()
+			->with('my_custom_cap', true);
 
-it('skips roles without display name', function () {
-	mockEmptyCurrentRoles();
+		// ACT //
+		(new UserRoles($config, $this->roleCommand, new WP_CLI))
+			->createRoles();
+	});
 
-	$roleCommand = Mockery::mock(Role_Command::class)->shouldIgnoreMissing();
+	it('can clone a new role from an existing role', function () {
+		// ARRANGE //
+		$config = [
+			'prefix' => 'yard',
+			'roles' => [
+				'visitor' => [
+					'display_name' => 'Bezoeker',
+					'clone' => [
+						'from' => 'subscriber',
+					],
+				],
+			],
+		];
 
-	$roleCommand->shouldNotReceive('create');
+		// EXPECT //
+		$this->roleCommand->shouldReceive('create')
+			->once()
+			->with(['yard_visitor', 'Bezoeker'], ['clone' => 'subscriber']);
 
-	$config = [
-		'prefix' => 'yard',
-		'roles' => [
-			'superuser' => [],
-		],
-	];
+		// ACT //
+		(new UserRoles($config, $this->roleCommand, new WP_CLI))
+			->createRoles();
+	});
 
-	$wpCli = Mockery::mock(WP_CLI::class)->shouldIgnoreMissing();
+	it('can add capabilities to a cloned role', function () {
+		// ARRANGE //
+		$config = [
+			'prefix' => 'yard',
+			'roles' => [
+				'visitor' => [
+					'display_name' => 'Bezoeker',
+					'clone' => [
+						'from' => 'subscriber',
+						'add' => [
+							'caps' => [
+								'my_custom_cap',
+							],
+						],
+					],
+				],
+			],
+		];
 
-	$wpCli->shouldReceive('warning')
-		->once()
-		->with('No display name configured for role superuser. Skipping role creation.');
+		// EXPECT //
+		$this->roleCommand->shouldReceive('create')
+			->once()
+			->with(['yard_visitor', 'Bezoeker'], ['clone' => 'subscriber']);
 
-	$userRoles = new UserRoles($config, $roleCommand, $wpCli);
+		$this->wpRole->shouldReceive('add_cap')
+			->once()
+			->with('my_custom_cap', true);
 
-	$userRoles->createRoles();
+		// ACT //
+		(new UserRoles($config, $this->roleCommand, new WP_CLI))
+			->createRoles();
+	});
 });
