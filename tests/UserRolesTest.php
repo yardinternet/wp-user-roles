@@ -330,4 +330,37 @@ describe('create roles', function () {
 		(new UserRoles($config, $this->roleCommand, new WP_CLI))
 			->createRoles();
 	});
+
+	it('can remove caps from a cloned role', function () {
+		// ARRANGE //
+		$config = [
+			'prefix' => 'yard',
+			'roles' => [
+				'visitor' => [
+					'display_name' => 'Bezoeker',
+					'clone' => [
+						'from' => 'subscriber',
+						'remove' => [
+							'caps' => [
+								'my_custom_cap',
+							],
+						],
+					],
+				],
+			],
+		];
+
+		// EXPECT //
+		$this->roleCommand->shouldReceive('create')
+			->once()
+			->with(['yard_visitor', 'Bezoeker'], ['clone' => 'subscriber']);
+
+		$this->wpRole->shouldReceive('remove_cap')
+			->once()
+			->with('my_custom_cap');
+
+		// ACT //
+		(new UserRoles($config, $this->roleCommand, new WP_CLI))
+			->createRoles();
+	});
 });

@@ -98,12 +98,17 @@ class UserRoles
 			}
 
 			$capabilities = [];
+			$removeCapabilities = [];
 
 			if ($this->cloneValid($properties)) {
 				$this->createRole($role, $properties, ['clone' => $properties['clone']['from']]);
 
 				if (isset($properties['clone']['add']) && is_array($properties['clone']['add'])) {
 					$capabilities = $this->capabilitiesFromRoleProperties($properties['clone']['add']);
+				}
+
+				if (isset($properties['clone']['remove']) && is_array($properties['clone']['remove'])) {
+					$removeCapabilities = $this->capabilitiesFromRoleProperties($properties['clone']['remove']);
 				}
 			} else {
 				$this->createRole($role, $properties);
@@ -116,6 +121,10 @@ class UserRoles
 
 			foreach ($capabilities as $cap => $grant) {
 				$role->add_cap((string)$cap, $grant);
+			}
+
+			foreach ($removeCapabilities as $cap => $grant) {
+				$role->remove_cap((string)$cap);
 			}
 		}
 	}
