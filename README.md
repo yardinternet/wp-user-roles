@@ -1,4 +1,4 @@
-# Yard wp-user-roles
+# wp-user-roles
 
 [![Code Style](https://github.com/yardinternet/wp-user-roles/actions/workflows/format-php.yml/badge.svg?no-cache)](https://github.com/yardinternet/wp-user-roles/actions/workflows/format-php.yml)
 [![PHPStan](https://github.com/yardinternet/wp-user-roles/actions/workflows/phpstan.yml/badge.svg?no-cache)](https://github.com/yardinternet/wp-user-roles/actions/workflows/phpstan.yml)
@@ -6,6 +6,8 @@
 [![Code Coverage Badge](https://github.com/yardinternet/wp-user-roles/blob/badges/coverage.svg)](https://github.com/yardinternet/wp-user-roles/actions/workflows/badges.yml)
 [![Lines of Code Badge](https://github.com/yardinternet/wp-user-roles/blob/badges/lines-of-code.svg)](https://github.com/yardinternet/wp-user-roles/actions/workflows/badges.yml)
 
+
+An Acorn package for managing user roles in WordPress.
 
 
 ## Requirements
