@@ -16,10 +16,10 @@ return [
 
 	'core_roles' => [
 		'administrator' => true,
-		'editor' => false,
-		'author' => false,
-		'contributor' => false,
-		'subscriber' => false,
+		'editor' => true,
+		'author' => true,
+		'contributor' => true,
+		'subscriber' => true,
 	],
 
 	/*
@@ -46,39 +46,21 @@ return [
 		'superuser' => [
 			'display_name' => 'Superuser',
 			'caps' => [
-				'read',
-				'edit_dashboard',
-				'edit_files',
-				'unfiltered_html',
-				'upload_files',
-				'manage_categories',
-				'edit_theme_options',
-				'moderate_comments',
-				'copy_posts',
+				'my_custom_cap',
 			],
 			'post_type_caps' => [
 				'post',
-				'page',
-				'tribe_events',
-				'tribe_organizer',
-				'tribe_venue',
 			],
 			'cap_groups' => [
-				'gravityforms',
-				'wpseo',
-				'users',
+				'related_caps',
 			],
 		],
 		'visitor' => [
-			'display_name' => 'Bezoeker',
+			'display_name' => 'Visitor',
 			'clone' => [
 				'from' => 'subscriber',
 				'add' => [
-					'caps' => [
-						'yard_hide_admin_bar',
-						'yard_redirect_home_after_login',
-						'yard_prevent_admin_access',
-					],
+					'caps' => [],
 					'post_type_caps' => [],
 					'cap_groups' => [],
 				],
@@ -102,13 +84,6 @@ return [
 	*/
 
 	'cap_groups' => [
-		'plugins' => [
-			'activate_plugins',
-			'delete_plugins',
-			'edit_plugins',
-			'install_plugins',
-			'update_plugins',
-		],
 		'users' => [
 			'create_users',
 			'delete_users',
@@ -123,32 +98,6 @@ return [
 			'install_themes',
 			'switch_themes',
 			'update_themes',
-		],
-		'gravityforms' => [
-			'gravityforms_create_form',
-			'gravityforms_delete_forms',
-			'gravityforms_edit_forms',
-			'gravityforms_preview_forms',
-			'gravityforms_view_entries',
-			'gravityforms_edit_entries',
-			'gravityforms_delete_entries',
-			'gravityforms_view_entry_notes',
-			'gravityforms_edit_entry_notes',
-		],
-		'wpseo' => [
-			'wpseo_bulk_edit',
-			'wpseo_manage_options',
-			'wpseo_bulk_edit',
-			'wpseo_manage_options',
-			'edit_redirection',
-			'edit_redirections',
-			'edit_others_redirections',
-			'publish_redirections',
-			'read_redirection',
-			'read_private_redirections',
-			'delete_redirection',
-			'delete_others_redirections',
-			'delete_published_redirections',
 		],
 	],
 
