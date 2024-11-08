@@ -9,6 +9,14 @@
 
 An Acorn package for managing user roles in WordPress.
 
+## Features
+
+- [x] (Re)Create roles using a configuration file.
+- [x] Assign capabilities to user roles.
+- [x] Clone new roles from existing ones.
+- [x] Remove core roles.
+
+See [config](./config/user-roles.php) for all configuration options.
 
 ## Requirements
 
@@ -51,5 +59,5 @@ wp acorn vendor:publish --provider="Yard\UserRoles\UserRolesServiceProvider"
 From WP-CLI:
 
 ```shell
-wp acorn user-roles
+wp acorn roles:create
 ```
