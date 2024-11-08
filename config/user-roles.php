@@ -52,7 +52,8 @@ return [
 				'post',
 			],
 			'cap_groups' => [
-				'related_caps',
+				'users',
+				'themes',
 			],
 		],
 		'visitor' => [
