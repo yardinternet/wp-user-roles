@@ -1,8 +1,8 @@
 {
 	"name": "yard/wp-user-roles",
 	"type": "package",
-	"description": "This is my package wp-user-roles",
-	"version": "1.0.0",
+	"description": "An Acorn package for managing user roles in WordPress.",
+	"version": "2.0.0",
 	"license": "MIT",
 	"config": {
 		"sort-packages": true,
@@ -11,8 +11,9 @@
 		}
 	},
 	"require": {
-		"php": "^8.0",
+		"php": ">=8.1",
 		"spatie/laravel-package-tools": "^1.16",
+		"webmozart/assert": "^1.11",
 		"wp-cli/wp-cli-bundle": "^2.11"
 	},
 	"require-dev": {
