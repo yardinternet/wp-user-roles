@@ -48,16 +48,16 @@ To install this package using Composer, follow these steps:
     wp acorn package:discover
     ```
 
-You can publish the config file with:
-
-```shell
-wp acorn vendor:publish --provider="Yard\UserRoles\UserRolesServiceProvider"
-```
-
 ## Usage
 
-From WP-CLI:
+1. Publish the config file with:
 
-```shell
-wp acorn roles:create
-```
+   ```shell
+   wp acorn vendor:publish --provider="Yard\UserRoles\UserRolesServiceProvider"
+   ```
+
+2. Run WP-CLI command to create roles:
+
+   ```shell
+   wp acorn roles:create
+   ```
