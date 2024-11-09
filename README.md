@@ -11,10 +11,10 @@ An Acorn package for managing user roles in WordPress.
 
 ## Features
 
-- [x] (Re)Create roles using a configuration file.
-- [x] Assign capabilities to user roles.
-- [x] Clone new roles from existing ones.
-- [x] Remove core roles.
+- [x] Configure: Define custom roles and capabilities with a configuration file.
+- [x] (Re)Create: Insert roles into the database with a single wp-cli command.
+- [x] Clone roles: Quickly set up new roles based on existing ones.
+- [x] Delete roles: Remove any roles that you don’t need.
 
 See [config](./config/user-roles.php) for all configuration options.
 
@@ -25,24 +25,13 @@ See [config](./config/user-roles.php) for all configuration options.
 
 ## Installation
 
-To install this package using Composer, follow these steps:
-
-1. Add the following to the `repositories` section of your `composer.json`:
-
-    ```json
-    {
-      "type": "vcs",
-      "url": "git@github.com:yardinternet/wp-user-roles.git"
-    }
-    ```
-
-2. Install this package with Composer:
+1. Install this package with Composer:
 
     ```sh
     composer require yard/wp-user-roles
     ```
 
-3. Run the Acorn WP-CLI command to discover this package:
+2. Run the Acorn WP-CLI command to discover this package:
 
     ```shell
     wp acorn package:discover
