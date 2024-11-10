@@ -46,14 +46,22 @@ return [
 		'superuser' => [
 			'display_name' => 'Superuser',
 			'caps' => [
-				'my_custom_cap',
+				'read',
+				'edit_dashboard',
+				'edit_files',
+				'unfiltered_html',
+				'upload_files',
+				'manage_categories',
+				'edit_theme_options',
+				'moderate_comments',
+				'copy_posts',
 			],
 			'post_type_caps' => [
 				'post',
+				'page',
 			],
 			'cap_groups' => [
 				'users',
-				'themes',
 			],
 		],
 		'visitor' => [
@@ -85,6 +93,13 @@ return [
 	*/
 
 	'cap_groups' => [
+		'plugins' => [
+			'activate_plugins',
+			'delete_plugins',
+			'edit_plugins',
+			'install_plugins',
+			'update_plugins',
+		],
 		'users' => [
 			'create_users',
 			'delete_users',
