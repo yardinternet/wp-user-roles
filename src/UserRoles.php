@@ -14,6 +14,18 @@ class UserRoles
 {
 	private string $prefix;
 
+	/** @var array<int, string> * */
+	private array $coreRoles = [
+		'administrator',
+		'editor',
+		'author',
+		'contributor',
+		'subscriber',
+	];
+
+	/** @var array<int, string|WP_Role> * */
+	private array $preservedRoles = [];
+
 	/**
 	 * @param array<mixed> $config
 	 *
@@ -22,6 +34,10 @@ class UserRoles
 	public function __construct(private array $config, private Role_Command $roleCommand, private WP_CLI $wpCli)
 	{
 		$this->prefix = $this->prefixValidate($config);
+
+		if (! function_exists('populate_roles')) {
+			require_once ABSPATH . 'wp-admin/includes/schema.php';
+		}
 	}
 
 	/**
@@ -30,7 +46,7 @@ class UserRoles
 	public function createRoles(): void
 	{
 		$this->deleteCustomRoles();
-		$this->resetCoreRoles();
+		//		$this->resetCoreRoles();
 		$this->addCustomRoles();
 		$this->deleteCoreRoles();
 	}
@@ -81,13 +97,15 @@ class UserRoles
 
 	private function addCustomRoles(): void
 	{
-		$this->wpCli::log($this->wpCli::colorize('%MCreate custom roles:%n'));
+		$this->wpCli::log($this->wpCli::colorize('%M(Re)create custom roles:%n'));
 
 		if (false === $this->rolesValid()) {
 			$this->wpCli::warning('No roles found in config. Skipping custom role creation.');
 
 			return;
 		}
+
+		$this->preserveCoreRoles();
 
 		$roles = $this->config['roles'];
 
@@ -104,6 +122,8 @@ class UserRoles
 				$this->addRole($role, $props);
 			}
 		}
+
+		$this->restorePreservedRoles();
 	}
 
 	/**
@@ -189,17 +209,17 @@ class UserRoles
 			&& 0 !== count($this->config['roles']);
 	}
 
-	private function resetCoreRoles(): void
-	{
-		$this->wpCli::log($this->wpCli::colorize('%MReset core roles:%n'));
-
-		$this->roleCommand->reset([], ['all' => true]);
-	}
+	//	private function resetCoreRoles(): void
+	//	{
+	//		$this->wpCli::log($this->wpCli::colorize('%MReset core roles:%n'));
+	//
+	//		$this->roleCommand->reset([], ['all' => true]);
+	//	}
 
 	private function deleteCoreRoles(): void
 	{
 		$this->wpCli::log($this->wpCli::colorize('%MDelete core roles:%n'));
-		
+
 		if (! $this->coreRolesValid()) {
 			$this->wpCli::warning('No core roles found in config. Skipping core role deletion.');
 
@@ -208,10 +228,16 @@ class UserRoles
 
 		$coreRoles = $this->config['core_roles'];
 
+		$rolesDeleted = false;
 		foreach ($coreRoles as $role => $shouldStay) {
 			if (false === $shouldStay) {
 				$this->roleCommand->delete([$role]);
+				$rolesDeleted = true;
 			}
+		}
+
+		if (! $rolesDeleted) {
+			$this->wpCli::warning('No core roles were marked for deletion.');
 		}
 	}
 
@@ -267,5 +293,32 @@ class UserRoles
 		}
 
 		return $capabilities;
+	}
+
+	private function preserveCoreRoles(): void
+	{
+		foreach ($this->coreRoles as $role) {
+			$roleObject = get_role($role);
+			// If role exists, preserve it
+			if (null !== $roleObject) {
+				$this->wpCli::log('Preserve and temporary delete core role `' . $role . '`');
+				$this->preservedRoles[] = $roleObject;
+				remove_role($role);
+			}
+		}
+
+		// Put back all default roles and capabilities.
+		$this->wpCli::log('Recreate and populate default roles: `administrator`, `editor`, `author`, `contributor`, `subscriber`.');
+		populate_roles();
+	}
+
+	private function restorePreservedRoles(): void
+	{
+		foreach ($this->preservedRoles as $roleObject) {
+			// Replace populated role with preserved role
+			$this->wpCli::log('Restored preserved role `' . $roleObject->name . '`.');
+			remove_role($roleObject->name);
+			add_role($roleObject->name, ucwords($roleObject->name), $roleObject->capabilities);
+		}
 	}
 }
