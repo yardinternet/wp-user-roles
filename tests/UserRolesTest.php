@@ -21,92 +21,96 @@ function mockEmptyCurrentRoles(): void
 	]);
 }
 
-it('aborts if no prefix is found in config', function () {
-	$wpCli = Mockery::mock(WP_CLI::class);
-	$wpCli->shouldReceive('error')
-		->once()
-		->with('No prefix found in configuration file. Aborting role creation.')
-		->andThrow(new WP_CLI\ExitException('No prefix found in configuration file. Aborting role creation.'));
+describe('prefix', function () {
+	it('aborts if no prefix is found in config', function () {
+		$wpCli = Mockery::mock(WP_CLI::class);
+		$wpCli->shouldReceive('error')
+			->once()
+			->with('No prefix found in configuration file. Aborting role creation.')
+			->andThrow(new WP_CLI\ExitException('No prefix found in configuration file. Aborting role creation.'));
 
-	new UserRoles([], Mockery::mock(Role_Command::class), $wpCli);
-})->throws(WP_CLI\ExitException::class, 'No prefix found in configuration file. Aborting role creation.');
-
-it('does not remove any custom roles when they are not prefixed', function () {
-	mockEmptyCurrentRoles();
-
-	$roleCommand = Mockery::mock(Role_Command::class)->shouldIgnoreMissing();
-	$wpCli = Mockery::mock(WP_CLI::class)->shouldIgnoreMissing();
-
-	$roleCommand->shouldNotReceive('delete');
-	$wpCli->shouldReceive('warning')
-		->once()
-		->with("No custom roles with prefix 'yard_' found in database. Skipping custom role deletion.");
-
-	$userRoles = new UserRoles(['prefix' => 'yard'], $roleCommand, $wpCli);
-
-	$userRoles->createRoles();
+		new UserRoles([], Mockery::mock(Role_Command::class), $wpCli);
+	})->throws(WP_CLI\ExitException::class, 'No prefix found in configuration file. Aborting role creation.');
 });
 
-it('removes custom roles with the right prefix', function () {
-	$wpRoles = mockWpRoles([
-		'yard_superuser' => [],
-		'my_prefix_visitor' => [],
-	]);
+describe('remove', function () {
+	it('does not remove any custom roles when they are not prefixed', function () {
+		mockEmptyCurrentRoles();
 
-	WP_Mock::userFunction('wp_roles', [
-		'times' => 1,
-		'return' => $wpRoles,
-	]);
+		$roleCommand = Mockery::mock(Role_Command::class)->shouldIgnoreMissing();
+		$wpCli = Mockery::mock(WP_CLI::class)->shouldIgnoreMissing();
 
-	$roleCommand = Mockery::mock(Role_Command::class)->shouldIgnoreMissing();
+		$roleCommand->shouldNotReceive('delete');
+		$wpCli->shouldReceive('warning')
+			->once()
+			->with("No custom roles with prefix 'yard_' found in database. Skipping custom role deletion.");
 
-	$roleCommand->shouldReceive('delete')
-		->once()
-		->with(['yard_superuser']);
+		$userRoles = new UserRoles(['prefix' => 'yard'], $roleCommand, $wpCli);
 
-	$roleCommand->shouldNotReceive('delete')
-		->with(['my_prefix_visitor']);
+		$userRoles->createRoles();
+	});
 
-	$userRoles = new UserRoles(['prefix' => 'yard'], $roleCommand, new WP_CLI);
+	it('removes custom roles with the right prefix', function () {
+		$wpRoles = mockWpRoles([
+			'yard_superuser' => [],
+			'my_prefix_visitor' => [],
+		]);
 
-	$userRoles->createRoles();
-});
+		WP_Mock::userFunction('wp_roles', [
+			'times' => 1,
+			'return' => $wpRoles,
+		]);
 
-it('removes core roles marked for deletion', function () {
-	mockEmptyCurrentRoles();
+		$roleCommand = Mockery::mock(Role_Command::class)->shouldIgnoreMissing();
 
-	$roleCommand = Mockery::mock(Role_Command::class)->shouldIgnoreMissing();
+		$roleCommand->shouldReceive('delete')
+			->once()
+			->with(['yard_superuser']);
 
-	$config = [
-		'prefix' => 'yard',
-		'core_roles' => [
-			'administrator' => true,
-			'editor' => false,
-			'author' => false,
-		],
-	];
+		$roleCommand->shouldNotReceive('delete')
+			->with(['my_prefix_visitor']);
 
-	$roleCommand->shouldNotReceive('delete')
-		->with(['administrator']);
+		$userRoles = new UserRoles(['prefix' => 'yard'], $roleCommand, new WP_CLI);
 
-	$roleCommand->shouldReceive('delete')
-		->once()
-		->with(['editor']);
+		$userRoles->createRoles();
+	});
 
-	$roleCommand->shouldReceive('delete')
-		->once()
-		->with(['author']);
+	it('removes core roles marked for deletion', function () {
+		mockEmptyCurrentRoles();
 
-	$userRoles = new UserRoles($config, $roleCommand, new WP_CLI);
+		$roleCommand = Mockery::mock(Role_Command::class)->shouldIgnoreMissing();
 
-	$userRoles->createRoles();
+		$config = [
+			'prefix' => 'yard',
+			'core_roles' => [
+				'administrator' => true,
+				'editor' => false,
+				'author' => false,
+			],
+		];
+
+		$roleCommand->shouldNotReceive('delete')
+			->with(['administrator']);
+
+		$roleCommand->shouldReceive('delete')
+			->once()
+			->with(['editor']);
+
+		$roleCommand->shouldReceive('delete')
+			->once()
+			->with(['author']);
+
+		$userRoles = new UserRoles($config, $roleCommand, new WP_CLI);
+
+		$userRoles->createRoles();
+	});
 });
 
 describe('create roles', function () {
 	beforeEach(function () {
 		// mock WP_CLI
 		$this->wpCli = Mockery::mock(WP_CLI::class)->shouldIgnoreMissing();
-		
+
 		// delete custom roles
 		mockEmptyCurrentRoles();
 
