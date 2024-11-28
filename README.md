@@ -7,7 +7,7 @@
 [![Lines of Code Badge](https://github.com/yardinternet/wp-user-roles/blob/badges/lines-of-code.svg)](https://github.com/yardinternet/wp-user-roles/actions/workflows/badges.yml)
 
 
-An Acorn package for managing user roles in WordPress.
+An Acorn package for managing user roles and capabilities in WordPress.
 
 ## Features
 
