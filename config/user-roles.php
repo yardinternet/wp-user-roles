@@ -27,17 +27,16 @@ return [
 	| Custom roles
 	|--------------------------------------------------------------------------
 	|
-	| Define custom roles here. Each role should have a display name. Capabilities,
-	| Post Type capabilities and capability groups can be assigned to a role.
+	| Define custom roles here. Each role should at least have a `display_name`.
+	| Capabilities can be assigned to a role using the properties `caps`, `cap_groups`
+	| and`post_type_caps`.
+	|
 	| If you want to clone an existing role, you can specify the role to clone from
-	| and add or remove capabilities, Post Type capabilities and cap groups.
+	| and both add and remove `caps`, `cap_groups and `post_type_caps`.
 	|
-	| Post Type capabilities are configured when registering a post type. These are
-	| capabilities like 'edit_{$post->post_type}', 'publish_{$post->post_type}',
-	| 'delete_{$post->post_type}', etc.
-	|
-	| If a post type is not registered in cli context you can add the post type capabilities
-	| manually by manually adding the capabilities to the Cap Groups.
+	| `post_type_caps` are configured when registering a post type. These are
+	| capabilities like 'edit_{post_type}', 'publish_{post_type}',
+	| 'delete_{post_type}', etc.
 	|
 	*/
 
@@ -87,8 +86,8 @@ return [
 	| Capability groups
 	|--------------------------------------------------------------------------
 	|
-	| Define groups of related capabilities to easily assign multiple capabilities
-	| to a role. These groups can be used in the 'cap_groups' property of a role.
+	| Create groups of related capabilities and assign all of them at once.
+	| These groups can be used in the 'cap_groups' property of a role.
 	|
 	*/
 
