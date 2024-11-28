@@ -24,7 +24,7 @@ class UserRolesCommand extends Command
 	 */
 	public function handle(): void
 	{
-		$this->info('Updating roles...');
+		$this->info('Updating user roles...');
 
 		$this->createRolesForSites();
 
@@ -34,8 +34,13 @@ class UserRolesCommand extends Command
 	private function createRolesForSites(): void
 	{
 		if (true === is_multisite()) {
+			$this->info('Multisite detected. Let\'s create roles for all sites.');
+
 			foreach (get_sites(['fields' => 'ids']) as $siteId) {
 				switch_to_blog($siteId);
+
+				$this->info(PHP_EOL . 'Switched to blog: ' . get_bloginfo('name'));
+
 				UserRoles::createRoles();
 			}
 		} else {
