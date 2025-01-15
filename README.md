@@ -6,7 +6,6 @@
 [![Code Coverage Badge](https://github.com/yardinternet/wp-user-roles/blob/badges/coverage.svg)](https://github.com/yardinternet/wp-user-roles/actions/workflows/badges.yml)
 [![Lines of Code Badge](https://github.com/yardinternet/wp-user-roles/blob/badges/lines-of-code.svg)](https://github.com/yardinternet/wp-user-roles/actions/workflows/badges.yml)
 
-
 An Acorn package for managing user roles in WordPress.
 
 ## Features

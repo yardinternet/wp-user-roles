@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e1c8d9a3d88477679c458a6b185ee7dd",
+    "content-hash": "314864eacba4721a1136900592ca6603",
     "packages": [
         {
             "name": "brick/math",
@@ -8731,6 +8731,49 @@
             "time": "2023-10-31T09:24:17+00:00"
         },
         {
+            "name": "ckr/arraymerger",
+            "version": "3.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ckressibucher/array_merger.git",
+                "reference": "e9ac57360ca8c3002a674fdca9fd0b527dd5b651"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ckressibucher/array_merger/zipball/e9ac57360ca8c3002a674fdca9fd0b527dd5b651",
+                "reference": "e9ac57360ca8c3002a674fdca9fd0b527dd5b651",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.0"
+            },
+            "require-dev": {
+                "phpspec/phpspec": "~7.2"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Ckr\\Util\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Claudio Kressibucher",
+                    "email": "ckressibucher@graphicworks.ch"
+                }
+            ],
+            "description": "Provides functionality to merge arrays recursively",
+            "support": {
+                "issues": "https://github.com/ckressibucher/array_merger/issues",
+                "source": "https://github.com/ckressibucher/array_merger/tree/3.0.0"
+            },
+            "time": "2022-04-23T20:26:40+00:00"
+        },
+        {
             "name": "clue/ndjson-react",
             "version": "v1.3.0",
             "source": {
@@ -13144,16 +13187,60 @@
                 }
             ],
             "time": "2024-03-03T12:36:25+00:00"
+        },
+        {
+            "name": "yard/php-cs-fixer-rules",
+            "version": "v1.0.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/yardinternet/php-cs-fixer-rules.git",
+                "reference": "11a1736163ecc9dbe077fdbd6f1c4232435e2268"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/yardinternet/php-cs-fixer-rules/zipball/11a1736163ecc9dbe077fdbd6f1c4232435e2268",
+                "reference": "11a1736163ecc9dbe077fdbd6f1c4232435e2268",
+                "shasum": ""
+            },
+            "require": {
+                "ckr/arraymerger": "^3.0",
+                "friendsofphp/php-cs-fixer": "^3.64",
+                "php": ">=7.4",
+                "webmozart/assert": "^1.11"
+            },
+            "require-dev": {
+                "pestphp/pest": "^2.36",
+                "phpstan/phpstan": "^2.0"
+            },
+            "type": "package",
+            "autoload": {
+                "psr-4": {
+                    "Yard\\PhpCsFixerRules\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Yard PHP CS Fixer rules",
+            "support": {
+                "issues": "https://github.com/yardinternet/php-cs-fixer-rules/issues",
+                "source": "https://github.com/yardinternet/php-cs-fixer-rules/tree/v1.0.4"
+            },
+            "time": "2024-12-05T13:48:24+00:00"
         }
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {},
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
         "php": ">=8.1"
     },
-    "platform-dev": [],
-    "plugin-api-version": "2.3.0"
+    "platform-dev": {},
+    "platform-overrides": {
+        "php": "8.1"
+    },
+    "plugin-api-version": "2.6.0"
 }
