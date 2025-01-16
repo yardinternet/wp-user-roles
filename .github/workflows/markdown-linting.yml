@@ -1,0 +1,10 @@
+name: Markdown Linting
+on:
+  pull_request:
+    paths:
+        - '**.md'
+
+jobs:
+  linting:
+    uses: yardinternet/workflows/.github/workflows/markdown-linting.yml@main
+    secrets: inherit
