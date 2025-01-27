@@ -2,8 +2,11 @@
 	"name": "yard/wp-user-roles",
 	"type": "package",
 	"description": "An Acorn package for managing user roles in WordPress.",
-	"version": "2.0.0",
 	"license": "MIT",
+	"support": {
+		"source": "https://github.com/yardinternet/wp-user-roles",
+		"issues": "https://github.com/yardinternet/wp-user-roles/issues"
+	},
 	"config": {
 		"sort-packages": true,
 		"allow-plugins": {
