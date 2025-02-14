@@ -33,13 +33,6 @@ class UserRolesCommand extends Command
 
 	private function createRolesForSites(): void
 	{
-		if (true === is_multisite()) {
-			foreach (get_sites(['fields' => 'ids']) as $siteId) {
-				switch_to_blog($siteId);
-				UserRoles::createRoles();
-			}
-		} else {
-			UserRoles::createRoles();
-		}
+		UserRoles::createRoles();
 	}
 }

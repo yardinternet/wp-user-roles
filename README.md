@@ -46,6 +46,14 @@ See [config](./config/user-roles.php) for all configuration options.
 
 2. Run WP-CLI command to create roles:
 
+    Single site:
+
    ```shell
    wp acorn roles:create
    ```
+
+    In a multisite:
+
+    ```shell
+    wp site list --field=url | xargs -n1 -I % wp acorn roles:create --url=% 
+    ```
