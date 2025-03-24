@@ -124,14 +124,14 @@ class UserRoles
 	{
 		$role = $this->createRole($role, $props, ['clone' => $props['clone']['from']]);
 
-		if (isset($props['clone']['add']) && is_array($props['clone']['add'])) {
-			$caps = $this->capsFromRoleProps($props['clone']['add']);
-			$this->addCaps($role, $caps);
-		}
-
 		if (isset($props['clone']['remove']) && is_array($props['clone']['remove'])) {
 			$removeCaps = $this->capsFromRoleProps($props['clone']['remove']);
 			$this->removeCaps($role, $removeCaps);
+		}
+
+		if (isset($props['clone']['add']) && is_array($props['clone']['add'])) {
+			$caps = $this->capsFromRoleProps($props['clone']['add']);
+			$this->addCaps($role, $caps);
 		}
 	}
 
@@ -199,7 +199,7 @@ class UserRoles
 	private function deleteCoreRoles(): void
 	{
 		$this->wpCli::log($this->wpCli::colorize('%MDelete core roles:%n'));
-		
+
 		if (! $this->coreRolesValid()) {
 			$this->wpCli::warning('No core roles found in config. Skipping core role deletion.');
 
