@@ -13,11 +13,11 @@
 			"pestphp/pest-plugin": true
 		},
 		"platform": {
-			"php": "8.1"
+			"php": "8.2"
 		}
 	},
 	"require": {
-		"php": ">=8.1",
+		"php": ">=8.2",
 		"spatie/laravel-package-tools": "^1.16",
 		"webmozart/assert": "^1.11",
 		"wp-cli/wp-cli-bundle": "^2.11"
