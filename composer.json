@@ -20,7 +20,8 @@
 		"php": ">=8.2",
 		"spatie/laravel-package-tools": "^1.16",
 		"webmozart/assert": "^1.11",
-		"wp-cli/wp-cli-bundle": "^2.11"
+		"wp-cli/role-command": "^2.0",
+		"wp-cli/wp-cli": "^2.11"
 	},
 	"require-dev": {
 		"10up/wp_mock": "^0.4.2",
