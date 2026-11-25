@@ -29,10 +29,14 @@ class UserRoles
 	 */
 	public function createRoles(): void
 	{
+		$rolesBefore = array_keys(wp_roles()->roles);
+
 		$this->deleteCustomRoles();
 		$this->resetCoreRoles();
 		$this->addCustomRoles();
 		$this->deleteCoreRoles();
+		$this->setDefaultRole();
+		$this->warnAboutRemovedRolesInUse($rolesBefore);
 	}
 
 	/**
@@ -220,6 +224,48 @@ class UserRoles
 		return isset($this->config['core_roles'])
 			&& is_array($this->config['core_roles'])
 			&& 0 !== count($this->config['core_roles']);
+	}
+
+	/**
+	 * remove_role() falls back to 'subscriber', even when that role is deleted too.
+	 */
+	private function setDefaultRole(): void
+	{
+		$this->wpCli::log($this->wpCli::colorize('%MSet default role:%n'));
+
+		$capCounts = array_map(
+			fn (array $role): int => count(array_filter($role['capabilities'])),
+			wp_roles()->roles
+		);
+		asort($capCounts);
+		$defaultRole = array_key_first($capCounts);
+
+		if (null === $defaultRole) {
+			$this->wpCli::warning('No roles found in database. Skipping default role.');
+
+			return;
+		}
+
+		update_option('default_role', (string)$defaultRole);
+		$this->wpCli::success("Default role set to '$defaultRole'.");
+	}
+
+	/**
+	 * WordPress leaves a removed role on its users, who then have no role at all.
+	 *
+	 * @param array<int, string> $rolesBefore
+	 */
+	private function warnAboutRemovedRolesInUse(array $rolesBefore): void
+	{
+		$removedRoles = array_diff($rolesBefore, array_keys(wp_roles()->roles));
+
+		foreach ($removedRoles as $role) {
+			$userCount = count(get_users(['role' => $role, 'fields' => 'ID']));
+
+			if (0 < $userCount) {
+				$this->wpCli::warning("Role '$role' was removed, but $userCount user(s) still have it. List them with: wp user list --role=$role");
+			}
+		}
 	}
 
 	/**
